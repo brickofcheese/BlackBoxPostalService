@@ -123,5 +123,20 @@ void loop() {
 
   while(phase == 3) {
     \\This is where we decide what to do when we hit something
+    if(crashLeft == HIGH && crashRight == LOW) {
+      //turn right
+    }
+
+    if(crashLeft == LOW && crashRight == HIGH) {
+      //turn left
+    }
+    
+    if(crashLeft == HIGH && crashRight == HIGH) {
+      //go to the center of the arena
+    }
+    
+    if(crashMiddle == HIGH && crashLeft == LOW && crashRight == LOW) {
+      // mission complete
+    }
   }
 }
