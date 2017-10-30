@@ -1,15 +1,20 @@
 #include "Enes100.h"
-Enes100 enes("Black Box Postal Service", BLACK_BOX, 178, 8, 9);          //Make sure to change marker number and rx and tx pins to reflect OSV
+Enes100 enes("Black Box Postal Service", BLACK_BOX, 178, 8, 9); //Make sure to change marker number and rx and tx pins to reflect OSV
 
 //Set pin values
 #define infraredLeftPin 0
 #define infraredRightPin 0
-#define crashLeftPin 0
-#define crashMiddlePin 0
-#define crashRightPin 0
+#define crashLeftPin 3
+#define crashMiddlePin 2
+#define crashRightPin 1
 
-#define motorLeftPin 0
-#define motorRightPin 0
+#define motorLeftEnable 5
+#define motorLeftOutput1 6
+#define motorLeftOutput2 7
+
+#define motorRightEnable 10
+#define motorRightOutput1 8
+#define motorRightOutput2 9
 
 //Other constants
 #define checkTime 100
@@ -21,17 +26,39 @@ void setup() {
   if(!enes.updateLocation()) {
     enes.println("The OSV can't find its location.");
   }
+  
+  pinMode(motorLeftEnable, OUTPUT);
+  pinMode(motorLeftOutput1, OUTPUT);
+  pinMode(motorLeftOutput2, OUTPUT);
+
+  pinMode(motorRightEnable, OUTPUT);
+  pinMode(motorRightOutput1, OUTPUT);
+  pinMode(motorRightOutput2, OUTPUT);
+
+  pinMode(crashLeftPin, INPUT);
+  pinMode(crashMiddlePin, INPUT);
+  pinMode(crashRightPin, INPUT);
 }
 
 void loop() {
   if(phase == 1){
     while(enes.location.theta > PI / 16 && enes.location.theta < 31 * PI / 16) {
+      analogWrite(motorLeftEnable, 200);
+      analogWrite(motorRightEnable, 200);
       if(enes.location.theta > PI / 16 && enes.location.theta < PI) {
         enes.println("The OSV turns right.");
+        digitalWrite(motorLeftInput1, LOW);
+        digitalWrite(motorLeftInput2, HIGH);
+        digitalWrite(motorRightInput1, HIGH);
+        digitalWrite(motorRightInput2, LOW);
       }
 
       if(enes.location.theta > PI && enes.location.theta < 31 * PI / 16) {
         enes.println("The OSV turns left.");
+        digitalWrite(motorLeftInput1, HIGH);
+        digitalWrite(motorLeftInput2, LOW);
+        digitalWrite(motorRightInput1, LOW);
+        digitalWrite(motorRightInput2, HIGH);
       }
 
       delay(checkTime);
@@ -43,6 +70,10 @@ void loop() {
 
     if(enes.location.x < 1.1) {
       enes.println("The OSV moves forward.");
+      digitalWrite(motorLeftInput1, LOW);
+      digitalWrite(motorLeftInput2, HIGH);
+      digitalWrite(motorRightInput1, LOW);
+      digitalWrite(motorRightInput2, HIGH);
     }
 
     if(enes.location.x > 1.1) {
@@ -58,15 +89,27 @@ void loop() {
   while(phase == 2) {
     while(infraredLeft == HIGH && infraredRight == LOW) {
       enes.println("The OSV turns left.");
+      digitalWrite(motorLeftInput1, HIGH);
+      digitalWrite(motorLeftInput2, LOW);
+      digitalWrite(motorRightInput1, LOW);
+      digitalWrite(motorRightInput2, HIGH);
       delay(checkTime);
     }
 
     while(infraredLeft == LOW && infraredLeft == HIGH) {
       enes.println("The OSV turns right.");
+      digitalWrite(motorLeftInput1, LOW);
+      digitalWrite(motorLeftInput2, HIGH);
+      digitalWrite(motorRightInput1, HIGH);
+      digitalWrite(motorRightInput2, LOW);
       delay(checkTime);
     }
 
     enes.println("The OSV moves forward.");
+    digitalWrite(motorLeftInput1, LOW);
+    digitalWrite(motorLeftInput2, HIGH);
+    digitalWrite(motorRightInput1, LOW);
+    digitalWrite(motorRightInput2, HIGH);
 
     if(crashLeft == HIGH || crashMiddle == HIGH || crashRight == HIGH) {
       enes.println("The OSV hit something and entered phase #3.");
@@ -79,6 +122,6 @@ void loop() {
   }
 
   while(phase == 3) {
-    \\This is where we decide what to do when we hit something0
+    \\This is where we decide what to do when we hit something
   }
 }
