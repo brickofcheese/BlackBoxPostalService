@@ -124,11 +124,20 @@ void loop() {
   while(phase == 3) {
     \\This is where we decide what to do when we hit something
     if(crashLeft == HIGH && crashRight == LOW) {
-      //turn right
+      if(crashMiddle == HIGH){
+        //turn right a lot
+      }
+      else{
+        //turn right a little
+      }
     }
-
     if(crashLeft == LOW && crashRight == HIGH) {
-      //turn left
+      if(crashMiddle == HIGH){
+        //turn left a lot
+      }
+      else{
+        //turn left a little
+      }
     }
     
     if(crashLeft == HIGH && crashRight == HIGH) {
