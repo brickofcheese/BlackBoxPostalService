@@ -21,6 +21,8 @@ Enes100 enes("Black Box Postal Service", BLACK_BOX, 178, 8, 9); //Make sure to c
 
 //Variable defintitions
 int phase 1;
+int obstacleX;
+int obstacleY;
 
 void setup() {
   if(!enes.updateLocation()) {
@@ -41,6 +43,7 @@ void setup() {
 }
 
 void loop() {
+  //In phase #1, the OSV tries to escape the landing zone and traverse the rough terrain.
   if(phase == 1){
     while(enes.location.theta > PI / 16 && enes.location.theta < 31 * PI / 16) {
       analogWrite(motorLeftEnable, 200);
@@ -85,7 +88,8 @@ void loop() {
       enes.println("The OSV can't find its location.");
     }
   }
-  
+
+  //In phase #2, the OSV searches for and moves towards the Black Box. If the OSV hits an obstacle, it enters phase #3. 
   while(phase == 2) {
     while(infraredLeft == HIGH && infraredRight == LOW) {
       enes.println("The OSV turns left.");
@@ -117,15 +121,82 @@ void loop() {
     }
 
     if(!enes.updateLocation()) {
-      enes.println("The OSV Can't find its location.");
+      enes.println("The OSV can't find its location.");
     }
   }
 
+  //In phase #3, the OSV decides what to when it hits something. It then follows a preset list of instructions to go around an obstacle.
   while(phase == 3) {
     \\This is where we decide what to do when we hit something
+    if(!enes.updateLocation()) {
+      enes.println("The OSV can't find its location.");
+    }
+
+    obstacleX = enes.location.x;
+    obstalceY = enes.location.y;
+    obstalceTheta = enes.location.theta;
+    
     if(crashLeft == HIGH && crashRight == LOW) {
       if(crashMiddle == HIGH){
-        //turn right a lot
+        enes.print("The OSV will circumnavigate obstacle on the right side.");
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.y - obstacleY, 2)) < 0.30) {
+          enes.println("The OSV moves backwards.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+        
+        while(abs(enes.location.theta - obstacleTheta) < PI/3) {
+          enes.println("The OSV turns right.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        obstacleX = enes.location.x;
+        obstacleY = enes.location.y;
+
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.x - obstacleX, 2))) < 0.60) {
+          enes.println("The OSV moves foward.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()) {
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        while(infraredLeft == LOW && infraredRight == LOW) {
+          enes.println("The OSV turns left.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
       }
       else{
         //turn right a little
@@ -145,8 +216,12 @@ void loop() {
     }
     
     if(crashMiddle == HIGH && crashLeft == LOW && crashRight == LOW) {
-      // mission complete
+      enes.println("The OSV has found the Black Box.");
+      enes.navigated():
+      enes.baseObjective(Coordinate(enes.location.x, enes.location.y));
     }
+
+    enes.println("The OSV has navigated the obstacle and re-entered phase #2.");
+    phase = 2;
   }
 }
-//testing 123
