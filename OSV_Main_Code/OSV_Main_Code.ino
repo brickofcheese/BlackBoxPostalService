@@ -115,7 +115,7 @@ void loop() {
     digitalWrite(motorRightInput1, LOW);
     digitalWrite(motorRightInput2, HIGH);
 
-    if(crashLeft == HIGH || crashMiddle == HIGH || crashRight == HIGH) {
+    if(digitalRead(crashLeftPin) == HIGH || digitalRead(crashMiddlePin) == HIGH || digitalRead(crashRightPin) == HIGH) {
       enes.println("The OSV hit something and entered phase #3.");
       phase = 3;
     }
@@ -136,9 +136,9 @@ void loop() {
     obstalceY = enes.location.y;
     obstalceTheta = enes.location.theta;
     
-    if(crashLeft == HIGH && crashRight == LOW) {
-      if(crashMiddle == HIGH){
-        enes.print("The OSV will circumnavigate obstacle on the right side.");
+    if(digitalRead(crashLeftPin) == HIGH && digitalRead(crashRightPin) == LOW) {
+      if(digitalRead(crashMiddlePin) == HIGH){
+        enes.print("The OSV will circumnavigate the obstacle on the right side.");
         while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.y - obstacleY, 2)) < 0.30) {
           enes.println("The OSV moves backwards.");
           digitalWrite(motorLeftInput1, HIGH);
@@ -198,24 +198,202 @@ void loop() {
           }
         }
       }
-      else{
-        //turn right a little
-      }
-    }
-    if(crashLeft == LOW && crashRight == HIGH) {
-      if(crashMiddle == HIGH){
-        //turn left a lot
-      }
-      else{
-        //turn left a little
+      if(digitalRead(crashMiddlePin) == LOW){
+        enes.print("The OSV will circumnavigate the obstacle on the right side.");
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.y - obstacleY, 2)) < 0.20) {
+          enes.println("The OSV moves backwards.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+        
+        while(abs(enes.location.theta - obstacleTheta) < PI/2) {
+          enes.println("The OSV turns right.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        obstacleX = enes.location.x;
+        obstacleY = enes.location.y;
+
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.x - obstacleX, 2))) < 0.20) {
+          enes.println("The OSV moves foward.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()) {
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        while(infraredLeft == LOW && infraredRight == LOW) {
+          enes.println("The OSV turns left.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
       }
     }
     
-    if(crashLeft == HIGH && crashRight == HIGH) {
+    if(digitalRead(crashLeftPin) == LOW && digitalRead(crashRightPin) == HIGH) {
+      if(digitalRead(crashMiddlePin) == HIGH) {
+        enes.print("The OSV will circumnavigate the obstacle on the left side.");
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.y - obstacleY, 2)) < 0.30) {
+          enes.println("The OSV moves backwards.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+        
+        while(abs(enes.location.theta - obstacleTheta) < PI/3) {
+          enes.println("The OSV turns left.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        obstacleX = enes.location.x;
+        obstacleY = enes.location.y;
+
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.x - obstacleX, 2))) < 0.60) {
+          enes.println("The OSV moves foward.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()) {
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        while(infraredLeft == LOW && infraredRight == LOW) {
+          enes.println("The OSV turns right.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+      }
+      
+      if(digitalRead(crashMiddlePin) == LOW) {
+        enes.print("The OSV will circumnavigate the obstacle on the left side.");
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.y - obstacleY, 2)) < 0.20) {
+          enes.println("The OSV moves backwards.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+        
+        while(abs(enes.location.theta - obstacleTheta) < PI/2) {
+          enes.println("The OSV turns left.");
+          digitalWrite(motorLeftInput1, HIGH);
+          digitalWrite(motorLeftInput2, LOW);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        obstacleX = enes.location.x;
+        obstacleY = enes.location.y;
+
+        while(sqrt(pow(enes.location.x - obstacleX, 2) + pow(enes.location.x - obstacleX, 2))) < 0.20) {
+          enes.println("The OSV moves foward.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, LOW);
+          digitalWrite(motorRightInput2, HIGH);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()) {
+            enes.println("The OSV can't find its location.");
+          }
+        }
+
+        while(infraredLeft == LOW && infraredRight == LOW) {
+          enes.println("The OSV turns right.");
+          digitalWrite(motorLeftInput1, LOW);
+          digitalWrite(motorLeftInput2, HIGH);
+          digitalWrite(motorRightInput1, HIGH);
+          digitalWrite(motorRightInput2, LOW);
+
+          delay(checkTime);
+
+          if(!enes.updateLocation()){
+            enes.println("The OSV can't find its location.");
+          }
+        }
+      }
+    }
+    
+    if(digitalRead(crashLeftPin) == HIGH && digitalRead(crashRightPin) == HIGH) {
       //go to the center of the arena
     }
     
-    if(crashMiddle == HIGH && crashLeft == LOW && crashRight == LOW) {
+    if(digitalRead(crashMiddlePin) == HIGH && digitalRead(crashLeftPin) == LOW && digitalRead(crashRightPin) == LOW) {
+      analogWrite(motorLeftEnable, 0);
+      analogWrite(motorLeftEnable, 0);
       enes.println("The OSV has found the Black Box.");
       enes.navigated():
       enes.baseObjective(Coordinate(enes.location.x, enes.location.y));
